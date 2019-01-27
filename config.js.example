@@ -1,0 +1,4 @@
+// @flow
+export const username = '<a_key_user_name>'
+export const paperkey =
+  '<a_paper_key_for_username>'
