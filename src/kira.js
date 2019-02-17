@@ -1,11 +1,10 @@
 // @flow
 import Bot from 'keybase-bot'
-import * as Config from '../config'
 import * as Message from './message'
 import search from './search'
 import comment from './comment'
 import reacji from './reacji'
-import Context, { type Context as ContextType } from './context'
+import { type Context } from './context'
 
 const sendHelp = (context, channel) =>
   context.bot.chat.send(channel, {
@@ -48,14 +47,7 @@ const makeOnMessage = context => kbMessage => {
   }
 }
 
-export default (context: ContextType) =>
-  context.bot
-    .init(Config.keybase.username, Config.keybase.paperkey, { verbose: true })
-    .then(() =>
-      Config.keybase.channels.forEach(channel =>
-        context.bot.chat.watchChannelForNewMessages(
-          channel,
-          makeOnMessage(context)
-        )
-      )
-    )
+export default (context: Context) =>
+  context.config.keybase.channels.forEach(channel =>
+    context.bot.chat.watchChannelForNewMessages(channel, makeOnMessage(context))
+  )

@@ -3,6 +3,8 @@ import Bot from 'keybase-bot'
 import type { Issue } from './jira'
 import type { CommentMessage } from './message'
 import util from 'util'
+import * as Config from './config'
+import Jira from './jira'
 
 const setTimeoutPromise = util.promisify(setTimeout)
 
@@ -27,10 +29,21 @@ class CommentContext {
 
 export type Context = {
   bot: Bot.Bot,
+  config: Config.Config,
   comment: CommentContext,
+  jira: Jira,
 }
 
-export default (): Context => ({
-  bot: new Bot(),
-  comment: new CommentContext(),
-})
+export const init = (config: Config.Config): Promise<Context> => {
+  const context = {
+    bot: new Bot(),
+    config,
+    comment: new CommentContext(),
+    jira: new Jira(config),
+  }
+  return context.bot
+    .init(context.config.keybase.username, context.config.keybase.paperkey, {
+      verbose: true,
+    })
+    .then(() => context)
+}

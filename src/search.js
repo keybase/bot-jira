@@ -1,6 +1,6 @@
 // @flow
 import Bot from 'keybase-bot'
-import * as Jira from './jira'
+import { type Issue as JiraIssue } from './jira'
 import { numToEmoji, statusToEmoji } from './emoji'
 import type { SearchMessage, CommentMessage } from './message'
 import type { Context } from './context'
@@ -27,8 +27,8 @@ export const getOrSearch = (
   channel: Bot.ChatChannel,
   parsedMessage: SearchMessage | CommentMessage,
   additional?: string
-): Promise<{ issues: Array<Jira.Issue>, count: number, id: number }> =>
-  Jira.getOrSearch(parsedMessage.query).then(issues =>
+): Promise<{ issues: Array<JiraIssue>, count: number, id: number }> =>
+  context.jira.getOrSearch(parsedMessage.query).then(issues =>
     context.bot.chat
       .send(channel, {
         body: buildSearchResultBody(parsedMessage, issues, additional),
