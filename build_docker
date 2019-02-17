@@ -24,8 +24,11 @@ version=$(curl -s http://prerelease.keybase.io.s3.amazonaws.com/update-linux-pro
 echo " $version"
 
 url="https://s3.amazonaws.com/prerelease.keybase.io/linux_binaries/deb/keybase_${version}_amd64.deb"
+echo -n Downloading keybase deb package from $url ...
+curl -s "$url" > deb
+echo " done"
 echo -n Extracting keybase binary from $url ...
-curl -s "$url" | tar -xO data.tar.xz | tar -x --strip-components 3 usr/bin/keybase
+ar -p deb data.tar.xz | tar -xJ --strip-components 3 usr/bin/keybase
 echo " done"
 
 cat <<EOF >Dockerfile
