@@ -28,7 +28,7 @@ echo -n Downloading keybase deb package from $url ...
 curl -s "$url" > deb
 echo " done"
 echo -n Extracting keybase binary from $url ...
-ar -p deb data.tar.xz | tar -xJ --strip-components 3 usr/bin/keybase
+ar -p deb data.tar.xz | tar -xJ --strip-components 3 ./usr/bin/keybase
 echo " done"
 
 cat <<EOF >Dockerfile
