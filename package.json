@@ -2,6 +2,7 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-flow": "^7.0.0",
     "babel-loader": "^8.0.5",
@@ -11,7 +12,8 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
-    "keybase-bot": "^1.0.3"
+    "jira-connector": "^2.10.0",
+    "keybase-bot": "^1.0.5"
   },
   "scripts": {
     "build": "webpack"
