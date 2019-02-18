@@ -17,8 +17,8 @@ const sendHelp = (context, channel) =>
 const reactAck = (context, channel: Bot.ChatChannel, id: number) =>
   context.bot.chat.react(channel, id, ':eyes:')
 
-const makeOnMessage = context => kbMessage => {
-  console.debug(kbMessage)
+const onMessage = (context, kbMessage) => {
+  // console.debug(kbMessage)
   const parsedMessage = Message.parseMessage(kbMessage)
   console.debug({ msg: 'got message', parsedMessage })
   if (!parsedMessage) {
@@ -47,7 +47,17 @@ const makeOnMessage = context => kbMessage => {
   }
 }
 
-export default (context: Context) =>
-  context.config.keybase.channels.forEach(channel =>
-    context.bot.chat.watchChannelForNewMessages(channel, makeOnMessage(context))
+const equalChatChannel = (c1, c2) =>
+  ['name', 'public', 'membersType', 'topicType', 'topicName'].reduce(
+    (equal, key) => c1[key] === c2[key],
+    true
   )
+
+export default (context: Context) => {
+  context.bot.chat.watchAllChannelsForNewMessages(
+    message =>
+      context.config.keybase.channels.some(channel =>
+        equalChatChannel(channel, message.channel)
+      ) && onMessage(context, message)
+  )
+}
