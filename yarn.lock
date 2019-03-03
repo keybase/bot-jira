@@ -2463,10 +2463,10 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-keybase-bot@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/keybase-bot/-/keybase-bot-1.0.5.tgz#eaa0a28f997825d1066afecfb033de42e1a29edd"
-  integrity sha512-T7Bsfu2x4pUxdjceZHiYo5kjGi4SM7KDUxKxL3KcgghJJkzdt8X6O3iRnQquzvGKxM3G57rzAHj+8qvv7R/QJQ==
+keybase-bot@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/keybase-bot/-/keybase-bot-2.0.0.tgz#c20b141a7e28f086370dc4010679800382d43d83"
+  integrity sha512-Q5/jMlkf2CZggjSC3ktN7Q2UTdiO3Lv4sl74155U5+NQieXL56VDIqT/3kHJI6LyQ+6BKAe6JzbOyHRKHlb+Iw==
   dependencies:
     lodash.camelcase "4.3.0"
     lodash.kebabcase "4.1.1"
