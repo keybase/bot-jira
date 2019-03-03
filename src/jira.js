@@ -34,26 +34,39 @@ export default class {
     url: `https://${this._config.jira.host}/browse/${issue.key}`,
   })
 
-  getOrSearch(str: string): Promise<any> {
+  getOrSearch({
+    query,
+    project,
+    status,
+  }: {
+    query: string,
+    project: string,
+    status: string,
+  }): Promise<any> {
+    const jql =
+      (project ? `project = "${project}" AND ` : '') +
+      (status ? `status = "${status}" AND ` : '') +
+      `text ~ "${query}"`
     return Promise.all([
-      looksLikeIssueKey(str)
+      looksLikeIssueKey(query)
         ? this._jira.issue.getIssue({
-            issueKey: str,
+            issueKey: query,
             fields: ['key', 'summary', 'status'],
           })
         : new Promise(r => r()),
       this._jira.search.search({
-        jql: `text ~ "${str}"`,
+        jql,
         fields: 'key,summary,status',
         method: 'GET',
         maxResults: 11,
       }),
-    ]).then(([fromGet, fromSearch]) => {
-      return [
+    ]).then(([fromGet, fromSearch]) => ({
+      jql,
+      issues: [
         ...(fromGet ? [fromGet] : []),
         ...(fromSearch ? fromSearch.issues : []),
-      ].map(this.jiraRespMapper)
-    })
+      ].map(this.jiraRespMapper),
+    }))
   }
 
   addComment(issueKey: string, comment: string): Promise<any> {

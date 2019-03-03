@@ -10,16 +10,17 @@ const issueToLine = (issue, index) =>
     issue.summary
   } - ${issue.url}`
 
-const buildSearchResultBody = (parsedMessage, issues, additional) => {
+const buildSearchResultBody = (parsedMessage, jql, issues, additional) => {
+  const begin = '```\n' + jql + '\n```'
   if (!issues.length) {
-    return 'I got nothing from Jira.'
+    return begin + 'I got nothing from Jira.'
   }
   const firstIssues = issues.slice(0, 11)
   const head =
     `@${parsedMessage.from} I got ${issues.length} tickets from Jira` +
     (issues > 11 ? '. Here are the first 11:\n\n' : ':\n\n')
   const body = firstIssues.map(issueToLine).join('\n')
-  return additional ? head + body + '\n\n' + additional : head + body
+  return begin + head + body + (additional ? '\n\n' + additional : '')
 }
 
 export const getOrSearch = (
@@ -28,17 +29,23 @@ export const getOrSearch = (
   parsedMessage: SearchMessage | CommentMessage,
   additional?: string
 ): Promise<{ issues: Array<JiraIssue>, count: number, id: number }> =>
-  context.jira.getOrSearch(parsedMessage.query).then(issues =>
-    context.bot.chat
-      .send(channel, {
-        body: buildSearchResultBody(parsedMessage, issues, additional),
-      })
-      .then(({ id }) => ({
-        count: issues.length > 11 ? 11 : issues.length,
-        id,
-        issues,
-      }))
-  )
+  context.jira
+    .getOrSearch({
+      query: parsedMessage.query,
+      project: parsedMessage.project,
+      status: parsedMessage.status,
+    })
+    .then(({ jql, issues }) =>
+      context.bot.chat
+        .send(channel, {
+          body: buildSearchResultBody(parsedMessage, jql, issues, additional),
+        })
+        .then(({ id }) => ({
+          count: issues.length > 11 ? 11 : issues.length,
+          id,
+          issues,
+        }))
+    )
 
 export default (
   context: Context,

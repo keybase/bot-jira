@@ -11,7 +11,9 @@ const sendHelp = (context, channel) =>
     body:
       'Usage: \n' +
       '  `!kira search <query>`\n' +
-      '  `!kira comment <query> <your comment>`\n',
+      '  `!kira comment <query|"multi word query"> <your comment>`\n' +
+      'Options: \n' +
+      '  `-p`, `--project`: only search for specific project [design desktop core kbfs]\n',
   })
 
 const reactAck = (context, channel: Bot.ChatChannel, id: number) =>
