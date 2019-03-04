@@ -45,5 +45,8 @@ export const init = (config: Config.Config): Promise<Context> => {
     .init(context.config.keybase.username, context.config.keybase.paperkey, {
       verbose: true,
     })
-    .then(() => context)
+    .then(() => {
+      console.debug({ msg: 'init done' })
+      return context
+    })
 }
