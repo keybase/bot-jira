@@ -38,39 +38,48 @@ export default class {
     query,
     project,
     status,
-    assignee,
+    assigneeJira,
   }: {
     query: string,
     project: string,
     status: string,
-    assignee: string,
+    assigneeJira: string,
   }): Promise<any> {
     const jql =
       (project ? `project = "${project}" AND ` : '') +
       (status ? `status = "${status}" AND ` : '') +
-      (assignee ? `assignee = "${assignee}" AND ` : '') +
+      (assigneeJira ? `assignee = "${assigneeJira}" AND ` : '') +
       `text ~ "${query}"`
     console.debug({ msg: 'getOrSearch', jql })
-    return Promise.all([
-      looksLikeIssueKey(query)
-        ? this._jira.issue.getIssue({
-            issueKey: query,
-            fields: ['key', 'summary', 'status'],
-          })
-        : new Promise(r => r()),
-      this._jira.search.search({
-        jql,
-        fields: 'key,summary,status',
-        method: 'GET',
-        maxResults: 11,
-      }),
-    ]).then(([fromGet, fromSearch]) => ({
-      jql,
-      issues: [
-        ...(fromGet ? [fromGet] : []),
-        ...(fromSearch ? fromSearch.issues : []),
-      ].map(this.jiraRespMapper),
-    }))
+    return (
+      Promise.all([
+        looksLikeIssueKey(query)
+          ? this._jira.issue.getIssue({
+              issueKey: query,
+              //fields: ['key', 'summary', 'status'],
+            })
+          : new Promise(r => r()),
+        this._jira.search.search({
+          jql,
+          fields: 'key,summary,status',
+          method: 'GET',
+          maxResults: 11,
+        }),
+      ])
+        /*
+      .then(a => {
+        console.log(a)
+        return a
+      })
+      */
+        .then(([fromGet, fromSearch]) => ({
+          jql,
+          issues: [
+            ...(fromGet ? [fromGet] : []),
+            ...(fromSearch ? fromSearch.issues : []),
+          ].map(this.jiraRespMapper),
+        }))
+    )
   }
 
   addComment(issueKey: string, comment: string): Promise<any> {
@@ -85,5 +94,44 @@ export default class {
             this._config.jira.host
           }/browse/${issueKey}?focusedCommentId=${id}`
       )
+  }
+
+  createIssue({
+    assigneeJira,
+    project,
+    name,
+    description,
+  }: {
+    assigneeJira: string,
+    project: string,
+    name: string,
+    description: string,
+  }): Promisie<any> {
+    console.log({
+      msg: 'createIssue',
+      assigneeJira,
+      project,
+      name,
+      description,
+    })
+    return (
+      this._jira.issue
+        .createIssue({
+          fields: {
+            assignee: assigneeJira ? { name: assigneeJira } : undefined,
+            project: { key: project.toUpperCase() },
+            issuetype: { name: 'Story' }, // TODO make this configurable?
+            summary: name,
+            description,
+          },
+        })
+        /*
+      .then(a => {
+        console.log(a)
+        return a
+      })
+      */
+        .then(({ key }) => `https://${this._config.jira.host}/browse/${key}`)
+    )
   }
 }

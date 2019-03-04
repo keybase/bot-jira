@@ -13,6 +13,15 @@ type HelpMessage = {|
   type: 'help',
 |}
 
+export type CreateMessage = {|
+  from: string,
+  type: 'create',
+  name: string,
+  project: string,
+  assignee: string,
+  description: string,
+|}
+
 export type SearchMessage = {|
   from: string,
   type: 'search',
@@ -157,6 +166,21 @@ export const parseMessage = (
         assignee,
         status,
         comment: parsed._.slice(3).join(' '),
+      }
+    case 'create':
+      if (parsed._.length < 4) {
+        return { type: 'unknown', error: 'create need at least 2 args' }
+      }
+      if (!project) {
+        return { type: 'unknown', error: 'create requires --project' }
+      }
+      return {
+        from: message.sender.username,
+        type: 'create',
+        name: parsed._[2],
+        project,
+        assignee,
+        description: parsed._.slice(3).join(' '),
       }
     default:
       return { type: 'unknown' }

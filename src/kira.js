@@ -4,6 +4,7 @@ import * as Message from './message'
 import search from './search'
 import comment from './comment'
 import reacji from './reacji'
+import create from './create'
 import { type Context } from './context'
 import * as Utils from './utils'
 
@@ -13,6 +14,7 @@ const sendHelp = (context, channel) =>
       'Usage: \n' +
       '  `!kira search <query>`\n' +
       '  `!kira comment <query|"multi word query"> <your comment>`\n' +
+      '  `!kira create --project=<PROJECT> [--assignee=<kb username>] <summary|"multi word summary"> <description>`\n' +
       'Options: \n' +
       '  `-p`, `--project`: only search for specific project ' +
       `${Utils.humanReadableArray(context.config.jira.projects)}\n` +
@@ -51,6 +53,9 @@ const onMessage = (context, kbMessage) => {
         return
       case 'reacji':
         reacji(context, kbMessage.channel, parsedMessage)
+        return
+      case 'create':
+        create(context, kbMessage.channel, parsedMessage)
         return
       default:
         console.error({ error: 'how could this happen' })
