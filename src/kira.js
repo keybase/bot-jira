@@ -90,17 +90,9 @@ const onMessage = (context, kbMessage) => {
   }
 }
 
-const equalChatChannel = (c1, c2) =>
-  ['name', 'public', 'membersType', 'topicType', 'topicName'].reduce(
-    (equal, key) => c1[key] === c2[key],
-    true
+export default (context: Context) =>
+  context.config.keybase.channels.forEach(channel =>
+    context.bot.chat.watchChannelForNewMessages(channel, message =>
+      onMessage(context, message)
+    )
   )
-
-export default (context: Context) => {
-  context.bot.chat.watchAllChannelsForNewMessages(
-    message =>
-      context.config.keybase.channels.some(channel =>
-        equalChatChannel(channel, message.channel)
-      ) && onMessage(context, message)
-  )
-}
