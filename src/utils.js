@@ -9,6 +9,7 @@ const quotes = {
 }
 
 const spaces = [' ', '\n', '\t']
+const spacesRE = / |\n|\t/
 
 // splits a string by white space, but respect quotes
 export const split2 = (s: string) => {
@@ -33,3 +34,8 @@ export const split2 = (s: string) => {
   )
   return current ? [...list, current] : list
 }
+
+export const humanReadableArray = (list: Array<string>): string =>
+  list
+    .map(item => (item.match(spacesRE) ? `\`"${item}"\`` : `\`${item}\``))
+    .join(' ')

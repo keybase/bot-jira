@@ -34,6 +34,7 @@ export const getOrSearch = (
       query: parsedMessage.query,
       project: parsedMessage.project,
       status: parsedMessage.status,
+      assignee: context.config.jira.usernameMapper[parsedMessage.assignee],
     })
     .then(({ jql, issues }) =>
       context.bot.chat

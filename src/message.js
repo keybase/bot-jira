@@ -2,9 +2,11 @@
 import Bot from 'keybase-bot'
 import yargs from 'yargs-parser'
 import * as Utils from './utils'
+import { type Context } from './context'
 
 type UnknownMessage = {|
   type: 'unknown',
+  error?: ?string,
 |}
 
 type HelpMessage = {|
@@ -17,6 +19,7 @@ export type SearchMessage = {|
   query: string,
   project: string,
   status: string,
+  assignee: string,
 |}
 
 export type CommentMessage = {|
@@ -25,6 +28,7 @@ export type CommentMessage = {|
   query: string,
   project: string,
   status: string,
+  assignee: string,
   comment: string,
 |}
 
@@ -58,10 +62,53 @@ const yargsOptions = {
   alias: {
     project: ['p'],
   },
-  string: ['project', 'status'],
+  string: ['project', 'status', 'assignee'],
 }
 
-export const parseMessage = (message: Bot.Message): ?Message => {
+const validateOptions = (context, parsed) => {
+  const project = parsed.project ? parsed.project.toLowerCase() : ''
+  const status = parsed.status ? parsed.status.toLowerCase() : ''
+  const assignee = parsed.assignee ? parsed.assignee.toLowerCase() : ''
+  if (project && !context.config.jira.projects.includes(project)) {
+    return {
+      project: '',
+      status: '',
+      assignee: '',
+      error: `invalid project: ${project} is not one of ${Utils.humanReadableArray(
+        context.config.jira.projects
+      )}`,
+    }
+  }
+
+  if (status && !context.config.jira.status.includes(status)) {
+    return {
+      project: '',
+      status: '',
+      assignee: '',
+      error: `invalid status: ${status} is not one of ${Utils.humanReadableArray(
+        context.config.jira.status
+      )}`,
+    }
+  }
+
+  if (assignee && !context.config.jira.usernameMapper[assignee]) {
+    return {
+      project: '',
+      status: '',
+      assignee: '',
+      error: `invalid assignee: ${assignee} is not one of ${Utils.humanReadableArray(
+        Object.keys(context.config.jira.usernameMapper)
+      )}`,
+    }
+  }
+
+  return { project, status, assignee, error: null }
+}
+
+export const parseMessage = (
+  context: Context,
+  message: Bot.Message
+): ?Message => {
   if (isKiraReaction(message)) {
     return {
       from: message.sender.username,
@@ -77,30 +124,38 @@ export const parseMessage = (message: Bot.Message): ?Message => {
 
   const parsed = yargs(Utils.split2(message.content.text.body), yargsOptions)
 
+  const { project, status, assignee, error } = validateOptions(context, parsed)
+
+  if (error) {
+    return { type: 'unknown', error }
+  }
+
   switch (parsed._[1]) {
     case 'help':
       return { type: 'help' }
     case 'search':
       if (parsed._.length < 3) {
-        return { type: 'unknown' }
+        return { type: 'unknown', error: 'search need at least 1 arg' }
       }
       return {
         from: message.sender.username,
         type: 'search',
         query: parsed._.slice(2).join(' '),
-        project: parsed.project,
-        status: parsed.status,
+        project,
+        assignee,
+        status,
       }
     case 'comment':
       if (parsed._.length < 4) {
-        return { type: 'unknown' }
+        return { type: 'unknown', error: 'comment need at least 2 args' }
       }
       return {
         from: message.sender.username,
         type: 'comment',
         query: parsed._[2],
-        project: parsed.project,
-        status: parsed.status,
+        project,
+        assignee,
+        status,
         comment: parsed._.slice(3).join(' '),
       }
     default:

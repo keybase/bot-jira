@@ -4,7 +4,10 @@ import { emojiToNum } from './emoji'
 import Bot from 'keybase-bot'
 import type { Context } from './context'
 
-const kb2jira = (context, kb) => context.config.jira.usernameMapper[kb] || kb
+const kb2jiraMention = (context, kb) =>
+  context.config.jira.usernameMapper[kb]
+    ? `[~${context.config.jira.usernameMapper[kb]}]`
+    : kb
 
 export default (
   context: Context,
@@ -31,10 +34,10 @@ export default (
 
   const issueKey = item.issues[num].key
   const comment =
-    `Comment by ${kb2jira(context, item.message.from)}` +
+    `Comment by ${kb2jiraMention(context, item.message.from)}` +
     (item.message.from === parsedMessage.from
       ? ': '
-      : ` (confirmed by ${kb2jira(context, parsedMessage.from)}): `) +
+      : ` (confirmed by ${kb2jiraMention(context, parsedMessage.from)}): `) +
     item.message.comment
   return context.jira.addComment(issueKey, comment).then(url =>
     context.bot.chat.send(channel, {

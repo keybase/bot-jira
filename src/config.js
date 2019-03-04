@@ -11,6 +11,8 @@ export type Config = {
     host: string,
     username: string,
     password: string,
+    projects: Array<string>,
+    status: Array<string>,
     usernameMapper: {
       [string]: string,
     },
@@ -52,9 +54,18 @@ const checkConfig = (obj): ?Config => {
   if (typeof obj.jira.password !== 'string') {
     return null
   }
-  if (obj.jira.usernameMapper && Array.isArray(obj.jira.usernameMapper)) {
+  if (!Array.isArray(obj.jira.projects)) {
     return null
   }
+  if (!Array.isArray(obj.jira.status)) {
+    return null
+  }
+
+  // case-insensitive
+  obj.jira.projects = obj.jira.projects.map(project => project.toLowerCase())
+  obj.jira.status = obj.jira.status.map(status => status.toLowerCase())
+
+  // TODO validate usernameMapper maybe
 
   return (obj: Object)
 }

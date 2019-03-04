@@ -38,15 +38,19 @@ export default class {
     query,
     project,
     status,
+    assignee,
   }: {
     query: string,
     project: string,
     status: string,
+    assignee: string,
   }): Promise<any> {
     const jql =
       (project ? `project = "${project}" AND ` : '') +
       (status ? `status = "${status}" AND ` : '') +
+      (assignee ? `assignee = "${assignee}" AND ` : '') +
       `text ~ "${query}"`
+    console.debug({ msg: 'getOrSearch', jql })
     return Promise.all([
       looksLikeIssueKey(query)
         ? this._jira.issue.getIssue({
