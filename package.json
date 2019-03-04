@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "jira-connector": "^2.10.0",
-    "keybase-bot": "^2.0.0",
+    "keybase-bot": "^2.0.1",
     "yargs-parser": "^13.0.0"
   },
   "scripts": {
