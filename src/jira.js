@@ -106,7 +106,7 @@ export default class {
     project: string,
     name: string,
     description: string,
-  }): Promisie<any> {
+  }): Promise<any> {
     console.log({
       msg: 'createIssue',
       assigneeJira,

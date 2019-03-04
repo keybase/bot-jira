@@ -54,6 +54,7 @@ export type Message =
   | SearchMessage
   | CommentMessage
   | ReacjiMessage
+  | CreateMessage
 
 const cmdRE = new RegExp(/(?:!kira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
 

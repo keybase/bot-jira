@@ -2,13 +2,13 @@
 import Bot from 'keybase-bot'
 import { numToEmoji } from './emoji'
 import { getOrSearch } from './search'
-import type { CommentMessage } from './message'
+import type { CreateMessage } from './message'
 import type { Context } from './context'
 
 export default (
   context: Context,
   channel: Bot.ChatChannel,
-  parsedMessage: CommentMessage
+  parsedMessage: CreateMessage
 ) =>
   context.jira
     .createIssue({
