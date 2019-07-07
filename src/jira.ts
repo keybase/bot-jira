@@ -1,15 +1,14 @@
-// @flow
 import JiraClient from 'jira-connector'
-import type { Config } from './config'
-import type { Context } from './context'
+import {Config} from './config'
+import {Context} from './context'
 
 const looksLikeIssueKey = str => !!str.match(/[A-Za-z]+-[0-9]+/)
 
 export type Issue = {
-  key: string,
-  summary: string,
-  status: string,
-  url: string,
+  key: string
+  summary: string
+  status: string
+  url: string
 }
 
 export default class {
@@ -40,17 +39,17 @@ export default class {
     status,
     assigneeJira,
   }: {
-    query: string,
-    project: string,
-    status: string,
-    assigneeJira: string,
+    query: string
+    project: string
+    status: string
+    assigneeJira: string
   }): Promise<any> {
     const jql =
       (project ? `project = "${project}" AND ` : '') +
       (status ? `status = "${status}" AND ` : '') +
       (assigneeJira ? `assignee = "${assigneeJira}" AND ` : '') +
       `text ~ "${query}"`
-    console.debug({ msg: 'getOrSearch', jql })
+    console.debug({msg: 'getOrSearch', jql})
     return (
       Promise.all([
         looksLikeIssueKey(query)
@@ -74,10 +73,7 @@ export default class {
       */
         .then(([fromGet, fromSearch]) => ({
           jql,
-          issues: [
-            ...(fromGet ? [fromGet] : []),
-            ...(fromSearch ? fromSearch.issues : []),
-          ].map(this.jiraRespMapper),
+          issues: [...(fromGet ? [fromGet] : []), ...(fromSearch ? fromSearch.issues : [])].map(this.jiraRespMapper),
         }))
     )
   }
@@ -86,14 +82,9 @@ export default class {
     return this._jira.issue
       .addComment({
         issueKey,
-        comment: { body: comment },
+        comment: {body: comment},
       })
-      .then(
-        ({ id }) =>
-          `https://${
-            this._config.jira.host
-          }/browse/${issueKey}?focusedCommentId=${id}`
-      )
+      .then(({id}) => `https://${this._config.jira.host}/browse/${issueKey}?focusedCommentId=${id}`)
   }
 
   createIssue({
@@ -102,10 +93,10 @@ export default class {
     name,
     description,
   }: {
-    assigneeJira: string,
-    project: string,
-    name: string,
-    description: string,
+    assigneeJira: string
+    project: string
+    name: string
+    description: string
   }): Promise<any> {
     console.log({
       msg: 'createIssue',
@@ -118,9 +109,9 @@ export default class {
       this._jira.issue
         .createIssue({
           fields: {
-            assignee: assigneeJira ? { name: assigneeJira } : undefined,
-            project: { key: project.toUpperCase() },
-            issuetype: { name: 'Story' }, // TODO make this configurable?
+            assignee: assigneeJira ? {name: assigneeJira} : undefined,
+            project: {key: project.toUpperCase()},
+            issuetype: {name: 'Story'}, // TODO make this configurable?
             summary: name,
             description,
           },
@@ -131,7 +122,7 @@ export default class {
         return a
       })
       */
-        .then(({ key }) => `https://${this._config.jira.host}/browse/${key}`)
+        .then(({key}) => `https://${this._config.jira.host}/browse/${key}`)
     )
   }
 }

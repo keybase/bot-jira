@@ -1,6 +1,4 @@
-// @flow
-
-export const emojiToNum = (num: string): ?number => {
+export const emojiToNum = (num: string): null | number => {
   switch (num) {
     case ':zero:':
       return 0

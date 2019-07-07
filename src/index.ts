@@ -1,6 +1,5 @@
-// @flow
 import Kira from './kira'
-import { init } from './context'
+import {init} from './context'
 import * as Config from './config'
 
 const config = Config.parse(process.env.KIRA_CONFIG || '')

@@ -1,11 +1,9 @@
-// @flow
-import Bot from 'keybase-bot'
 import * as Message from './message'
 import search from './search'
 import comment from './comment'
 import reacji from './reacji'
 import create from './create'
-import { type Context } from './context'
+import {Context} from './context'
 import * as Utils from './utils'
 
 const sendHelp = (context, channel) =>
@@ -21,9 +19,7 @@ const sendHelp = (context, channel) =>
       '    `--status`: only search for tickets in specific status ' +
       `${Utils.humanReadableArray(context.config.jira.status)}\n` +
       '    `--assignee`: only search for tickets assigned to specified person (keybase username) ' +
-      `${Utils.humanReadableArray(
-        Object.keys(context.config.jira.usernameMapper)
-      )}\n\n` +
+      `${Utils.humanReadableArray(Object.keys(context.config.jira.usernameMapper))}\n\n` +
       '*Examples*:\n' +
       '    `!kira search Rekey` -- single word keyword search\n' +
       '    `!kira search black bar` -- multiple word works too\n' +
@@ -40,20 +36,16 @@ const sendHelp = (context, channel) =>
 
 const reportError = (context, channel, parsedMessage) =>
   context.bot.chat.send(channel, {
-    body:
-      (parsedMessage.error
-        ? `Invalid command: ${parsedMessage.error}`
-        : 'Unknown command') + '\nNeed help? Try `!kira help`',
+    body: (parsedMessage.error ? `Invalid command: ${parsedMessage.error}` : 'Unknown command') + '\nNeed help? Try `!kira help`',
   })
 
-const reactAck = (context, channel: Bot.ChatChannel, id: number) =>
-  context.bot.chat.react(channel, id, ':eyes:')
+const reactAck = (context, channel: Bot.ChatChannel, id: number) => context.bot.chat.react(channel, id, ':eyes:')
 
 const onMessage = (context, kbMessage) => {
   try {
     //console.debug(kbMessage)
     const parsedMessage = Message.parseMessage(context, kbMessage)
-    console.debug({ msg: 'got message', parsedMessage })
+    console.debug({msg: 'got message', parsedMessage})
     if (!parsedMessage) {
       // not a kira message
       return
@@ -81,7 +73,7 @@ const onMessage = (context, kbMessage) => {
         create(context, kbMessage.channel, parsedMessage)
         return
       default:
-        console.error({ error: 'how could this happen' })
+        console.error({error: 'how could this happen'})
         return
     }
   } catch (err) {
@@ -92,7 +84,5 @@ const onMessage = (context, kbMessage) => {
 
 export default (context: Context) =>
   context.config.keybase.channels.forEach(channel =>
-    context.bot.chat.watchChannelForNewMessages(channel, message =>
-      onMessage(context, message)
-    )
+    context.bot.chat.watchChannelForNewMessages(channel, message => onMessage(context, message))
   )

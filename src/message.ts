@@ -1,60 +1,52 @@
-// @flow
-import Bot from 'keybase-bot'
 import yargs from 'yargs-parser'
 import * as Utils from './utils'
-import { type Context } from './context'
+import {Context} from './context'
 
-type UnknownMessage = {|
-  type: 'unknown',
-  error?: ?string,
-|}
+type UnknownMessage = {
+  type: 'unknown'
+  error?: string
+}
 
-type HelpMessage = {|
-  type: 'help',
-|}
+type HelpMessage = {
+  type: 'help'
+}
 
-export type CreateMessage = {|
-  from: string,
-  type: 'create',
-  name: string,
-  project: string,
-  assignee: string,
-  description: string,
-|}
+export type CreateMessage = {
+  from: string
+  type: 'create'
+  name: string
+  project: string
+  assignee: string
+  description: string
+}
 
-export type SearchMessage = {|
-  from: string,
-  type: 'search',
-  query: string,
-  project: string,
-  status: string,
-  assignee: string,
-|}
+export type SearchMessage = {
+  from: string
+  type: 'search'
+  query: string
+  project: string
+  status: string
+  assignee: string
+}
 
-export type CommentMessage = {|
-  from: string,
-  type: 'comment',
-  query: string,
-  project: string,
-  status: string,
-  assignee: string,
-  comment: string,
-|}
+export type CommentMessage = {
+  from: string
+  type: 'comment'
+  query: string
+  project: string
+  status: string
+  assignee: string
+  comment: string
+}
 
-export type ReacjiMessage = {|
-  from: string,
-  type: 'reacji',
-  reactToID: number,
-  emoji: string,
-|}
+export type ReacjiMessage = {
+  from: string
+  type: 'reacji'
+  reactToID: number
+  emoji: string
+}
 
-export type Message =
-  | UnknownMessage
-  | HelpMessage
-  | SearchMessage
-  | CommentMessage
-  | ReacjiMessage
-  | CreateMessage
+export type Message = UnknownMessage | HelpMessage | SearchMessage | CommentMessage | ReacjiMessage | CreateMessage
 
 const cmdRE = new RegExp(/(?:!kira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
 
@@ -65,8 +57,7 @@ const isKiraMessage = message =>
   typeof message.content.text.body === 'string' &&
   message.content.text.body.startsWith('!kira')
 
-const isKiraReaction = message =>
-  message && message.content && message.content.type === 'reaction'
+const isKiraReaction = message => message && message.content && message.content.type === 'reaction'
 
 const yargsOptions = {
   alias: {
@@ -84,9 +75,7 @@ const validateOptions = (context, parsed) => {
       project: '',
       status: '',
       assignee: '',
-      error: `invalid project: ${project} is not one of ${Utils.humanReadableArray(
-        context.config.jira.projects
-      )}`,
+      error: `invalid project: ${project} is not one of ${Utils.humanReadableArray(context.config.jira.projects)}`,
     }
   }
 
@@ -95,9 +84,7 @@ const validateOptions = (context, parsed) => {
       project: '',
       status: '',
       assignee: '',
-      error: `invalid status: ${status} is not one of ${Utils.humanReadableArray(
-        context.config.jira.status
-      )}`,
+      error: `invalid status: ${status} is not one of ${Utils.humanReadableArray(context.config.jira.status)}`,
     }
   }
 
@@ -106,19 +93,14 @@ const validateOptions = (context, parsed) => {
       project: '',
       status: '',
       assignee: '',
-      error: `invalid assignee: ${assignee} is not one of ${Utils.humanReadableArray(
-        Object.keys(context.config.jira.usernameMapper)
-      )}`,
+      error: `invalid assignee: ${assignee} is not one of ${Utils.humanReadableArray(Object.keys(context.config.jira.usernameMapper))}`,
     }
   }
 
-  return { project, status, assignee, error: null }
+  return {project, status, assignee}
 }
 
-export const parseMessage = (
-  context: Context,
-  message: Bot.Message
-): ?Message => {
+export const parseMessage = (context: Context, message: Bot.Message): null | Message => {
   if (isKiraReaction(message)) {
     return {
       from: message.sender.username,
@@ -134,18 +116,18 @@ export const parseMessage = (
 
   const parsed = yargs(Utils.split2(message.content.text.body), yargsOptions)
 
-  const { project, status, assignee, error } = validateOptions(context, parsed)
+  const {project, status, assignee, error} = validateOptions(context, parsed)
 
   if (error) {
-    return { type: 'unknown', error }
+    return {type: 'unknown', error}
   }
 
   switch (parsed._[1]) {
     case 'help':
-      return { type: 'help' }
+      return {type: 'help'}
     case 'search':
       if (parsed._.length < 3) {
-        return { type: 'unknown', error: 'search need at least 1 arg' }
+        return {type: 'unknown', error: 'search need at least 1 arg'}
       }
       return {
         from: message.sender.username,
@@ -157,7 +139,7 @@ export const parseMessage = (
       }
     case 'comment':
       if (parsed._.length < 4) {
-        return { type: 'unknown', error: 'comment need at least 2 args' }
+        return {type: 'unknown', error: 'comment need at least 2 args'}
       }
       return {
         from: message.sender.username,
@@ -170,10 +152,10 @@ export const parseMessage = (
       }
     case 'create':
       if (parsed._.length < 4) {
-        return { type: 'unknown', error: 'create need at least 2 args' }
+        return {type: 'unknown', error: 'create need at least 2 args'}
       }
       if (!project) {
-        return { type: 'unknown', error: 'create requires --project' }
+        return {type: 'unknown', error: 'create requires --project'}
       }
       return {
         from: message.sender.username,
@@ -184,6 +166,6 @@ export const parseMessage = (
         description: parsed._.slice(3).join(' '),
       }
     default:
-      return { type: 'unknown' }
+      return {type: 'unknown'}
   }
 }

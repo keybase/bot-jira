@@ -1,19 +1,11 @@
-// @flow
-import type { ReacjiMessage } from './message'
-import { emojiToNum } from './emoji'
+import {ReacjiMessage} from './message'
+import {emojiToNum} from './emoji'
 import Bot from 'keybase-bot'
-import type { Context } from './context'
+import {Context} from './context'
 
-const kb2jiraMention = (context, kb) =>
-  context.config.jira.usernameMapper[kb]
-    ? `[~${context.config.jira.usernameMapper[kb]}]`
-    : kb
+const kb2jiraMention = (context, kb) => (context.config.jira.usernameMapper[kb] ? `[~${context.config.jira.usernameMapper[kb]}]` : kb)
 
-export default (
-  context: Context,
-  channel: Bot.ChatChannel,
-  parsedMessage: ReacjiMessage
-) => {
+export default (context: Context, channel: Bot.ChatChannel, parsedMessage: ReacjiMessage) => {
   const item = context.comment.get(parsedMessage.reactToID)
   if (!item) {
     return
@@ -35,9 +27,7 @@ export default (
   const issueKey = item.issues[num].key
   const comment =
     `Comment by ${kb2jiraMention(context, item.message.from)}` +
-    (item.message.from === parsedMessage.from
-      ? ': '
-      : ` (confirmed by ${kb2jiraMention(context, parsedMessage.from)}): `) +
+    (item.message.from === parsedMessage.from ? ': ' : ` (confirmed by ${kb2jiraMention(context, parsedMessage.from)}): `) +
     item.message.comment
   return context.jira.addComment(issueKey, comment).then(url =>
     context.bot.chat.send(channel, {

@@ -1,7 +1,6 @@
-// @flow
 import Bot from 'keybase-bot'
-import type { Issue } from './jira'
-import type { CommentMessage } from './message'
+import {Issue} from './jira'
+import {CommentMessage} from './message'
 import util from 'util'
 import * as Config from './config'
 import Jira from './jira'
@@ -9,29 +8,26 @@ import Jira from './jira'
 const setTimeoutPromise = util.promisify(setTimeout)
 
 type CommentContextItem = {
-  message: CommentMessage,
-  issues: Array<Issue>,
+  message: CommentMessage
+  issues: Array<Issue>
 }
 
 class CommentContext {
   _respMsgIDToCommentMessage = new Map()
 
   add = (responseID: number, message: CommentMessage, issues: Array<Issue>) => {
-    this._respMsgIDToCommentMessage.set(responseID, { message, issues })
-    setTimeoutPromise(1000 * 120 /* 2min */).then(() =>
-      this._respMsgIDToCommentMessage.delete(responseID)
-    )
+    this._respMsgIDToCommentMessage.set(responseID, {message, issues})
+    setTimeoutPromise(1000 * 120 /* 2min */).then(() => this._respMsgIDToCommentMessage.delete(responseID))
   }
 
-  get = (responseID: number): ?CommentContextItem =>
-    this._respMsgIDToCommentMessage.get(responseID)
+  get = (responseID: number): null | CommentContextItem => this._respMsgIDToCommentMessage.get(responseID)
 }
 
 export type Context = {
-  bot: Bot.Bot,
-  config: Config.Config,
-  comment: CommentContext,
-  jira: Jira,
+  bot: Bot
+  config: Config.Config
+  comment: CommentContext
+  jira: Jira
 }
 
 export const init = (config: Config.Config): Promise<Context> => {
@@ -46,7 +42,7 @@ export const init = (config: Config.Config): Promise<Context> => {
       verbose: true,
     })
     .then(() => {
-      console.debug({ msg: 'init done' })
+      console.debug({msg: 'init done'})
       return context
     })
 }
