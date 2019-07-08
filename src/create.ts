@@ -1,10 +1,10 @@
-import Bot from 'keybase-bot'
+import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
 import {numToEmoji} from './emoji'
 import {getOrSearch} from './search'
 import {CreateMessage} from './message'
 import {Context} from './context'
 
-export default (context: Context, channel: Bot.ChatChannel, parsedMessage: CreateMessage) =>
+export default (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: CreateMessage) =>
   context.jira
     .createIssue({
       assigneeJira: context.config.jira.usernameMapper[parsedMessage.assignee] || '',

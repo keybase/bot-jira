@@ -1,10 +1,10 @@
-import {ChatChannel} from 'keybase-bot'
+import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
 
 export type Config = {
   keybase: {
     username: string
     paperkey: string
-    channels: Array<ChatChannel>
+    channels: Array<BotChatClientTypes.ChatChannel>
   }
   jira: {
     host: string
@@ -12,7 +12,9 @@ export type Config = {
     apiToken: string
     projects: Array<string>
     status: Array<string>
-    usernameMapper: Object
+    usernameMapper: {
+      [key: string]: string
+    }
   }
   aliases: {
     // no space, has to be at beginning, replaced before parsing command
@@ -20,7 +22,7 @@ export type Config = {
   }
 }
 
-const checkConfig = (obj): null | Config => {
+const checkConfig = (obj: any): null | Config => {
   if (typeof obj !== 'object') {
     return null
   }
@@ -49,10 +51,10 @@ const checkConfig = (obj): null | Config => {
   if (typeof obj.jira.host !== 'string') {
     return null
   }
-  if (typeof obj.jira.username !== 'string') {
+  if (typeof obj.jira.email !== 'string') {
     return null
   }
-  if (typeof obj.jira.password !== 'string') {
+  if (typeof obj.jira.apiToken !== 'string') {
     return null
   }
   if (!Array.isArray(obj.jira.projects)) {

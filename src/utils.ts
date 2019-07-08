@@ -1,4 +1,6 @@
-const quotes = {
+const quotes: {
+  [key: string]: string
+} = {
   '"': '"',
   "'": "'",
   '`': '`',
@@ -12,7 +14,7 @@ const spacesRE = / |\n|\t/
 // splits a string by white space, but respect quotes
 export const split2 = (s: string) => {
   const {list, current} = s.split('').reduce(
-    ({list, current, quote}, c) => {
+    ({list, current, quote}, c: string) => {
       if (quote) {
         return c === quote ? {list: [...list, current], current: '', quote: ''} : {list, current: current + c, quote}
       }

@@ -1,25 +1,32 @@
-import Bot from 'keybase-bot'
+import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
 import {Issue as JiraIssue} from './jira'
 import {numToEmoji, statusToEmoji} from './emoji'
 import {SearchMessage, CommentMessage} from './message'
 import {Context} from './context'
 
-const issueToLine = (issue, index) => `${numToEmoji(index)} *${issue.key}* ${statusToEmoji(issue.status)} ${issue.summary} - ${issue.url}`
+const issueToLine = (issue: JiraIssue, index: number) =>
+  `${numToEmoji(index)} *${issue.key}* ${statusToEmoji(issue.status)} ${issue.summary} - ${issue.url}`
 
-const buildSearchResultBody = (parsedMessage, jql, issues, additional) => {
+const buildSearchResultBody = (
+  parsedMessage: SearchMessage | CommentMessage,
+  jql: string,
+  issues: Array<JiraIssue>,
+  additional?: string
+) => {
   const begin = '```\n' + jql + '\n```'
   if (!issues.length) {
     return begin + 'I got nothing from Jira.'
   }
   const firstIssues = issues.slice(0, 11)
-  const head = `@${parsedMessage.from} I got ${issues.length} tickets from Jira` + (issues > 11 ? '. Here are the first 11:\n\n' : ':\n\n')
+  const head =
+    `@${parsedMessage.from} I got ${issues.length} tickets from Jira` + (issues.length > 11 ? '. Here are the first 11:\n\n' : ':\n\n')
   const body = firstIssues.map(issueToLine).join('\n')
   return begin + head + body + (additional ? '\n\n' + additional : '')
 }
 
 export const getOrSearch = (
   context: Context,
-  channel: Bot.ChatChannel,
+  channel: BotChatClientTypes.ChatChannel,
   parsedMessage: SearchMessage | CommentMessage,
   additional?: string
 ): Promise<{issues: Array<JiraIssue>; count: number; id: number}> =>
@@ -42,4 +49,5 @@ export const getOrSearch = (
         }))
     )
 
-export default (context: Context, channel: Bot.ChatChannel, parsedMessage: SearchMessage) => getOrSearch(context, channel, parsedMessage)
+export default (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: SearchMessage) =>
+  getOrSearch(context, channel, parsedMessage)

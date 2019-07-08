@@ -1,11 +1,12 @@
+import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
 import {ReacjiMessage} from './message'
 import {emojiToNum} from './emoji'
-import Bot from 'keybase-bot'
 import {Context} from './context'
 
-const kb2jiraMention = (context, kb) => (context.config.jira.usernameMapper[kb] ? `[~${context.config.jira.usernameMapper[kb]}]` : kb)
+const kb2jiraMention = (context: Context, kb: string) =>
+  context.config.jira.usernameMapper[kb] ? `[~${context.config.jira.usernameMapper[kb]}]` : kb
 
-export default (context: Context, channel: Bot.ChatChannel, parsedMessage: ReacjiMessage) => {
+export default (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: ReacjiMessage) => {
   const item = context.comment.get(parsedMessage.reactToID)
   if (!item) {
     return

@@ -1,3 +1,4 @@
+import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
 import * as Message from './message'
 import search from './search'
 import comment from './comment'
@@ -6,7 +7,7 @@ import create from './create'
 import {Context} from './context'
 import * as Utils from './utils'
 
-const sendHelp = (context, channel) =>
+const sendHelp = (context: Context, channel: BotChatClientTypes.ChatChannel) =>
   context.bot.chat.send(channel, {
     body:
       '*Usage*: \n' +
@@ -34,14 +35,15 @@ const sendHelp = (context, channel) =>
       '',
   })
 
-const reportError = (context, channel, parsedMessage) =>
+const reportError = (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: Message.Message) =>
   context.bot.chat.send(channel, {
-    body: (parsedMessage.error ? `Invalid command: ${parsedMessage.error}` : 'Unknown command') + '\nNeed help? Try `!kira help`',
+    body:
+      (parsedMessage.type === 'unknown' ? `Invalid command: ${parsedMessage.error}` : 'Unknown command') + '\nNeed help? Try `!kira help`',
   })
 
-const reactAck = (context, channel: Bot.ChatChannel, id: number) => context.bot.chat.react(channel, id, ':eyes:')
+const reactAck = (context: Context, channel: BotChatClientTypes.ChatChannel, id: number) => context.bot.chat.react(channel, id, ':eyes:')
 
-const onMessage = (context, kbMessage) => {
+const onMessage = (context: Context, kbMessage: BotChatClientTypes.MessageSummary) => {
   try {
     //console.debug(kbMessage)
     const parsedMessage = Message.parseMessage(context, kbMessage)

@@ -1,8 +1,8 @@
 import JiraClient from 'jira-connector'
+import {Issue as JiraIssue} from 'jira-connector/api/issue'
 import {Config} from './config'
-import {Context} from './context'
 
-const looksLikeIssueKey = str => !!str.match(/[A-Za-z]+-[0-9]+/)
+const looksLikeIssueKey = (str: string) => !!str.match(/[A-Za-z]+-[0-9]+/)
 
 export type Issue = {
   key: string
@@ -26,7 +26,7 @@ export default class {
     })
   }
 
-  jiraRespMapper = (issue): Issue => ({
+  jiraRespMapper = (issue: JiraIssue): Issue => ({
     key: issue.key,
     summary: issue.fields.summary,
     status: issue.fields.status.statusCategory.name,
@@ -84,7 +84,7 @@ export default class {
         issueKey,
         comment: {body: comment},
       })
-      .then(({id}) => `https://${this._config.jira.host}/browse/${issueKey}?focusedCommentId=${id}`)
+      .then(({id}: {id: string}) => `https://${this._config.jira.host}/browse/${issueKey}?focusedCommentId=${id}`)
   }
 
   createIssue({
@@ -122,7 +122,7 @@ export default class {
         return a
       })
       */
-        .then(({key}) => `https://${this._config.jira.host}/browse/${key}`)
+        .then(({key}: {key: string}) => `https://${this._config.jira.host}/browse/${key}`)
     )
   }
 }
