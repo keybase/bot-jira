@@ -8,11 +8,15 @@ export type Config = {
   }
   jira: {
     host: string
-    username: string
-    password: string
+    email: string
+    apiToken: string
     projects: Array<string>
     status: Array<string>
     usernameMapper: Object
+  }
+  aliases: {
+    // no space, has to be at beginning, replaced before parsing command
+    [key: string]: string
   }
 }
 

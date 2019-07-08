@@ -13,20 +13,20 @@ export type Issue = {
 
 export default class {
   _config: Config
-  _jira: Object
+  _jira: JiraClient
 
   constructor(config: Config) {
     this._config = config
     this._jira = new JiraClient({
       host: config.jira.host,
       basic_auth: {
-        username: config.jira.username,
-        password: config.jira.password,
+        email: config.jira.email,
+        api_token: config.jira.apiToken,
       },
     })
   }
 
-  jiraRespMapper = (issue: Object): Issue => ({
+  jiraRespMapper = (issue): Issue => ({
     key: issue.key,
     summary: issue.fields.summary,
     status: issue.fields.status.statusCategory.name,

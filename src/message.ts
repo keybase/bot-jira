@@ -50,12 +50,8 @@ export type Message = UnknownMessage | HelpMessage | SearchMessage | CommentMess
 
 const cmdRE = new RegExp(/(?:!kira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
 
-const isKiraMessage = message =>
-  message &&
-  message.content &&
-  message.content.type === 'text' &&
-  typeof message.content.text.body === 'string' &&
-  message.content.text.body.startsWith('!kira')
+const isTextMessage = message =>
+  message && message.content && message.content.type === 'text' && typeof message.content.text.body === 'string'
 
 const isKiraReaction = message => message && message.content && message.content.type === 'reaction'
 
@@ -110,11 +106,17 @@ export const parseMessage = (context: Context, message: Bot.Message): null | Mes
     }
   }
 
-  if (!isKiraMessage(message)) {
+  if (!isTextMessage(message)) {
     return null
   }
 
-  const parsed = yargs(Utils.split2(message.content.text.body), yargsOptions)
+  const expandedMessageTextBody = context.aliases.expand(message.content.text.body)
+
+  if (!expandedMessageTextBody.startsWith('!kira')) {
+    return null
+  }
+
+  const parsed = yargs(Utils.split2(expandedMessageTextBody), yargsOptions)
 
   const {project, status, assignee, error} = validateOptions(context, parsed)
 

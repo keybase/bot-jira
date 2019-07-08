@@ -4,6 +4,7 @@ import {CommentMessage} from './message'
 import util from 'util'
 import * as Config from './config'
 import Jira from './jira'
+import Aliases from './aliases'
 
 const setTimeoutPromise = util.promisify(setTimeout)
 
@@ -24,6 +25,7 @@ class CommentContext {
 }
 
 export type Context = {
+  aliases: Aliases
   bot: Bot
   config: Config.Config
   comment: CommentContext
@@ -32,6 +34,7 @@ export type Context = {
 
 export const init = (config: Config.Config): Promise<Context> => {
   const context = {
+    aliases: new Aliases(config.aliases),
     bot: new Bot(),
     config,
     comment: new CommentContext(),
