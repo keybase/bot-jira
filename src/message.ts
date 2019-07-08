@@ -51,7 +51,7 @@ export type ReacjiMessage = {
 
 export type Message = UnknownMessage | HelpMessage | SearchMessage | CommentMessage | ReacjiMessage | CreateMessage
 
-const cmdRE = new RegExp(/(?:!kira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
+const cmdRE = new RegExp(/(?:!jira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
 
 const isTextMessage = (message: BotChatClientTypes.MessageSummary) =>
   message && message.content && message.content.type === 'text' && typeof message.content.text.body === 'string'
@@ -121,7 +121,7 @@ export const parseMessage = (context: Context, kbMessage: BotChatClientTypes.Mes
 
   const expandedMessageTextBody = context.aliases.expand(textContent.text.body)
 
-  if (!expandedMessageTextBody.startsWith('!kira')) {
+  if (!expandedMessageTextBody.startsWith('!jira')) {
     return null
   }
 

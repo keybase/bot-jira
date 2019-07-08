@@ -24,6 +24,10 @@ class Aliases {
     }
     return expanded
   }
+
+  getMappings(): Array<{from: string; to: string}> {
+    return Array.from(this.mappings.entries()).map(([from, to]) => ({from, to}))
+  }
 }
 
 export default Aliases
