@@ -60,7 +60,7 @@ export default class {
           : new Promise(r => r()),
         this._jira.search.search({
           jql,
-          fields: 'key,summary,status',
+          fields: ['key', 'summary', 'status'],
           method: 'GET',
           maxResults: 11,
         }),

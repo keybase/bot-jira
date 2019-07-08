@@ -9,6 +9,9 @@ class Aliases {
 
   _expand(messageTextBody: string): string {
     const spaceIndex = messageTextBody.indexOf(' ')
+    if (spaceIndex <= 0) {
+      return messageTextBody
+    }
     const from = messageTextBody.slice(0, spaceIndex).toLowerCase()
     const to = this.mappings.get(from)
     return to ? to + messageTextBody.slice(spaceIndex) : messageTextBody
@@ -21,6 +24,7 @@ class Aliases {
       if (expanded === _expanded) {
         return expanded
       }
+      expanded = _expanded
     }
     return expanded
   }

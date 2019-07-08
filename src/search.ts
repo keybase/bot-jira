@@ -13,7 +13,7 @@ const buildSearchResultBody = (
   issues: Array<JiraIssue>,
   additional?: string
 ) => {
-  const begin = '```\n' + jql + '\n```'
+  const begin = '```\n' + jql + '\n```\n'
   if (!issues.length) {
     return begin + 'I got nothing from Jira.'
   }
