@@ -1,4 +1,4 @@
-import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
+import ChatTypes from 'keybase-bot/lib/types/chat1'
 import * as Message from './message'
 import search from './search'
 import comment from './comment'
@@ -7,7 +7,7 @@ import create from './create'
 import {Context} from './context'
 import * as Utils from './utils'
 
-const sendHelp = (context: Context, channel: BotChatClientTypes.ChatChannel) =>
+const sendHelp = (context: Context, channel: ChatTypes.ChatChannel) =>
   context.bot.chat.send(channel, {
     body:
       '*Usage*: \n' +
@@ -40,15 +40,15 @@ const sendHelp = (context: Context, channel: BotChatClientTypes.ChatChannel) =>
       '\n',
   })
 
-const reportError = (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: Message.Message) =>
+const reportError = (context: Context, channel: ChatTypes.ChatChannel, parsedMessage: Message.Message) =>
   context.bot.chat.send(channel, {
     body:
       (parsedMessage.type === 'unknown' ? `Invalid command: ${parsedMessage.error}` : 'Unknown command') + '\nNeed help? Try `!jira help`',
   })
 
-const reactAck = (context: Context, channel: BotChatClientTypes.ChatChannel, id: number) => context.bot.chat.react(channel, id, ':eyes:')
+const reactAck = (context: Context, channel: ChatTypes.ChatChannel, id: number) => context.bot.chat.react(channel, id, ':eyes:')
 
-const onMessage = (context: Context, kbMessage: BotChatClientTypes.MessageSummary) => {
+const onMessage = (context: Context, kbMessage: ChatTypes.MsgSummary) => {
   try {
     // console.debug(kbMessage)
     const parsedMessage = Message.parseMessage(context, kbMessage)
@@ -58,24 +58,24 @@ const onMessage = (context: Context, kbMessage: BotChatClientTypes.MessageSummar
       return
     }
     switch (parsedMessage.type) {
-      case 'unknown':
+      case Message.BotMessageType.Unknown:
         reportError(context, kbMessage.channel, parsedMessage)
         return
-      case 'help':
+      case Message.BotMessageType.Help:
         sendHelp(context, kbMessage.channel)
         return
-      case 'search':
+      case Message.BotMessageType.Search:
         reactAck(context, kbMessage.channel, kbMessage.id)
         search(context, kbMessage.channel, parsedMessage)
         return
-      case 'comment':
+      case Message.BotMessageType.Comment:
         reactAck(context, kbMessage.channel, kbMessage.id)
         comment(context, kbMessage.channel, parsedMessage)
         return
-      case 'reacji':
+      case Message.BotMessageType.Reacji:
         reacji(context, kbMessage.channel, parsedMessage)
         return
-      case 'create':
+      case Message.BotMessageType.Create:
         reactAck(context, kbMessage.channel, kbMessage.id)
         create(context, kbMessage.channel, parsedMessage)
         return

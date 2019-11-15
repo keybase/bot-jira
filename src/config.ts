@@ -1,10 +1,10 @@
-import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
+import ChatTypes from 'keybase-bot/lib/types/chat1'
 
 export type Config = {
   keybase: {
     username: string
     paperkey: string
-    channels: Array<BotChatClientTypes.ChatChannel>
+    channels: Array<ChatTypes.ChatChannel>
   }
   jira: {
     host: string
@@ -24,43 +24,55 @@ export type Config = {
 
 const checkConfig = (obj: any): null | Config => {
   if (typeof obj !== 'object') {
+    console.error('unexpect obj type', typeof obj)
     return null
   }
 
   if (typeof obj.keybase !== 'object') {
+    console.error('unexpect obj.keybase type', typeof obj.keybase)
     return null
   }
   if (typeof obj.keybase.username !== 'string') {
+    console.error('unexpect obj.keybase.username type', typeof obj.keybase.username)
     return null
   }
   if (typeof obj.keybase.paperkey !== 'string') {
+    console.error('unexpect obj.keybase.paperkey type', typeof obj.keybase.paperkey)
     return null
   }
   if (!Array.isArray(obj.keybase.channels)) {
+    console.error('unexpect obj.keybase.channels type: not an array', obj.keybase.channels)
     return null
   }
   for (let channel of obj.keybase.channels) {
     if (typeof channel !== 'object') {
+      console.error('unexpect channel type', typeof channel)
       return null
     }
   }
 
   if (typeof obj.jira !== 'object') {
+    console.error('unexpect obj.jira type', typeof obj.jira)
     return null
   }
   if (typeof obj.jira.host !== 'string') {
+    console.error('unexpect obj.jira.host type', typeof obj.jira.host)
     return null
   }
   if (typeof obj.jira.email !== 'string') {
+    console.error('unexpect obj.jira.email type', typeof obj.jira.email)
     return null
   }
   if (typeof obj.jira.apiToken !== 'string') {
+    console.error('unexpect obj.jira.apiToken type', typeof obj.jira.apiToken)
     return null
   }
   if (!Array.isArray(obj.jira.projects)) {
+    console.error('unexpect obj.jira.projects type: not an array', obj.jira.projects)
     return null
   }
   if (!Array.isArray(obj.jira.status)) {
+    console.error('unexpect obj.jira.status type: not an array', obj.jira.status)
     return null
   }
 

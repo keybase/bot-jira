@@ -1,4 +1,4 @@
-import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
+import ChatTypes from 'keybase-bot/lib/types/chat1'
 import {Issue as JiraIssue} from './jira'
 import {numToEmoji, statusToEmoji} from './emoji'
 import {SearchMessage, CommentMessage} from './message'
@@ -26,7 +26,7 @@ const buildSearchResultBody = (
 
 export const getOrSearch = (
   context: Context,
-  channel: BotChatClientTypes.ChatChannel,
+  channel: ChatTypes.ChatChannel,
   parsedMessage: SearchMessage | CommentMessage,
   additional?: string
 ): Promise<{issues: Array<JiraIssue>; count: number; id: number}> =>
@@ -49,5 +49,5 @@ export const getOrSearch = (
         }))
     )
 
-export default (context: Context, channel: BotChatClientTypes.ChatChannel, parsedMessage: SearchMessage) =>
+export default (context: Context, channel: ChatTypes.ChatChannel, parsedMessage: SearchMessage) =>
   getOrSearch(context, channel, parsedMessage)
