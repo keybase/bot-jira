@@ -1,22 +1,30 @@
-import BotChatClientTypes from 'keybase-bot/lib/chat-client/types'
+import ChatTypes from 'keybase-bot/lib/types/chat1'
 // @ts-ignore
 import yargs from 'yargs-parser'
 import * as Utils from './utils'
 import {Context} from './context'
-import {Message} from './message'
+
+export enum BotMessageType {
+  Unknown = 'unknown',
+  Help = 'help',
+  Create = 'create',
+  Search = 'search',
+  Comment = 'comment',
+  Reacji = 'reacji',
+}
 
 type UnknownMessage = {
-  type: 'unknown'
+  type: BotMessageType.Unknown
   error?: string
 }
 
 type HelpMessage = {
-  type: 'help'
+  type: BotMessageType.Help
 }
 
 export type CreateMessage = {
   from: string
-  type: 'create'
+  type: BotMessageType.Create
   name: string
   project: string
   assignee: string
@@ -25,7 +33,7 @@ export type CreateMessage = {
 
 export type SearchMessage = {
   from: string
-  type: 'search'
+  type: BotMessageType.Search
   query: string
   project: string
   status: string
@@ -34,7 +42,7 @@ export type SearchMessage = {
 
 export type CommentMessage = {
   from: string
-  type: 'comment'
+  type: BotMessageType.Comment
   query: string
   project: string
   status: string
@@ -44,7 +52,7 @@ export type CommentMessage = {
 
 export type ReacjiMessage = {
   from: string
-  type: 'reacji'
+  type: BotMessageType.Reacji
   reactToID: number
   emoji: string
 }
@@ -53,10 +61,13 @@ export type Message = UnknownMessage | HelpMessage | SearchMessage | CommentMess
 
 const cmdRE = new RegExp(/(?:!jira)\s+(\S+)(?:\s+(\S+))?(?:\s+(.*))?/)
 
-const isTextMessage = (message: BotChatClientTypes.MessageSummary) =>
-  message && message.content && message.content.type === 'text' && typeof message.content.text.body === 'string'
+const getTextMessage = (message: ChatTypes.MsgSummary): ChatTypes.MessageText | undefined =>
+  message && message.content && message.content.type === 'text' && message.content.text && typeof message.content.text.body === 'string'
+    ? message.content.text
+    : undefined
 
-const isKiraReaction = (message: BotChatClientTypes.MessageSummary) => message && message.content && message.content.type === 'reaction'
+const getReactionMessage = (message: ChatTypes.MsgSummary): ChatTypes.MessageReaction =>
+  (message && message.content && message.content.type === 'reaction' && message.content.reaction) || undefined
 
 const yargsOptions = {
   alias: {
@@ -102,24 +113,23 @@ const validateOptions = (context: Context, parsed: Message) => {
   return {project, status, assignee}
 }
 
-export const parseMessage = (context: Context, kbMessage: BotChatClientTypes.MessageSummary): null | Message => {
-  if (isKiraReaction(kbMessage)) {
-    const reactionContent = kbMessage.content as BotChatClientTypes.ReactionContent
+export const parseMessage = (context: Context, kbMessage: ChatTypes.MsgSummary): null | Message => {
+  const reactionMessage = getReactionMessage(kbMessage)
+  if (reactionMessage) {
     return {
       from: kbMessage.sender.username,
-      type: 'reacji',
-      reactToID: reactionContent.reaction.m,
-      emoji: reactionContent.reaction.b,
+      type: BotMessageType.Reacji,
+      reactToID: reactionMessage.m,
+      emoji: reactionMessage.b,
     }
   }
 
-  if (!isTextMessage(kbMessage)) {
+  const textMessage = getTextMessage(kbMessage)
+  if (!textMessage) {
     return null
   }
 
-  const textContent = kbMessage.content as BotChatClientTypes.TextContent
-
-  const expandedMessageTextBody = context.aliases.expand(textContent.text.body)
+  const expandedMessageTextBody = context.aliases.expand(textMessage.body)
 
   if (!expandedMessageTextBody.startsWith('!jira')) {
     return null
@@ -130,19 +140,19 @@ export const parseMessage = (context: Context, kbMessage: BotChatClientTypes.Mes
   const {project, status, assignee, error} = validateOptions(context, parsed)
 
   if (error) {
-    return {type: 'unknown', error}
+    return {type: BotMessageType.Unknown, error}
   }
 
   switch (parsed._[1]) {
     case 'help':
-      return {type: 'help'}
+      return {type: BotMessageType.Help}
     case 'search':
       if (parsed._.length < 3) {
-        return {type: 'unknown', error: 'search need at least 1 arg'}
+        return {type: BotMessageType.Unknown, error: 'search need at least 1 arg'}
       }
       return {
         from: kbMessage.sender.username,
-        type: 'search',
+        type: BotMessageType.Search,
         query: parsed._.slice(2).join(' '),
         project,
         assignee,
@@ -150,11 +160,11 @@ export const parseMessage = (context: Context, kbMessage: BotChatClientTypes.Mes
       }
     case 'comment':
       if (parsed._.length < 4) {
-        return {type: 'unknown', error: 'comment need at least 2 args'}
+        return {type: BotMessageType.Unknown, error: 'comment need at least 2 args'}
       }
       return {
         from: kbMessage.sender.username,
-        type: 'comment',
+        type: BotMessageType.Comment,
         query: parsed._[2],
         project,
         assignee,
@@ -163,20 +173,20 @@ export const parseMessage = (context: Context, kbMessage: BotChatClientTypes.Mes
       }
     case 'create':
       if (parsed._.length < 4) {
-        return {type: 'unknown', error: 'create need at least 2 args'}
+        return {type: BotMessageType.Unknown, error: 'create need at least 2 args'}
       }
       if (!project) {
-        return {type: 'unknown', error: 'create requires --project'}
+        return {type: BotMessageType.Unknown, error: 'create requires --project'}
       }
       return {
         from: kbMessage.sender.username,
-        type: 'create',
+        type: BotMessageType.Create,
         name: parsed._[2],
         project,
         assignee,
         description: parsed._.slice(3).join(' '),
       }
     default:
-      return {type: 'unknown'}
+      return {type: BotMessageType.Unknown}
   }
 }
