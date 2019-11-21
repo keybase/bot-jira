@@ -7,6 +7,7 @@
     "@babel/preset-typescript": "7.3.3",
     "@types/node": "12.7.3",
     "babel-loader": "8.0.6",
+    "jest": "^24.9.0",
     "prettier": "1.19.1",
     "typescript": "3.7.2",
     "webpack": "4.36.1",
@@ -14,8 +15,7 @@
   },
   "dependencies": {
     "jira-connector": "2.16.1",
-    "keybase-bot": "3.0.3",
-    "yargs-parser": "16.1.0"
+    "keybase-bot": "3.0.3"
   },
   "scripts": {
     "build": "webpack --mode=production",

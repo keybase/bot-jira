@@ -50,32 +50,23 @@ export default class {
       (assigneeJira ? `assignee = "${assigneeJira}" AND ` : '') +
       `text ~ "${query}"`
     console.debug({msg: 'getOrSearch', jql})
-    return (
-      Promise.all([
-        looksLikeIssueKey(query)
-          ? this._jira.issue.getIssue({
-              issueKey: query,
-              //fields: ['key', 'summary', 'status'],
-            })
-          : new Promise(r => r()),
-        this._jira.search.search({
-          jql,
-          fields: ['key', 'summary', 'status'],
-          method: 'GET',
-          maxResults: 11,
-        }),
-      ])
-        /*
-      .then(a => {
-        console.log(a)
-        return a
-      })
-      */
-        .then(([fromGet, fromSearch]) => ({
-          jql,
-          issues: [...(fromGet ? [fromGet] : []), ...(fromSearch ? fromSearch.issues : [])].map(this.jiraRespMapper),
-        }))
-    )
+    return Promise.all([
+      looksLikeIssueKey(query)
+        ? this._jira.issue.getIssue({
+            issueKey: query,
+            //fields: ['key', 'summary', 'status'],
+          })
+        : new Promise(r => r()),
+      this._jira.search.search({
+        jql,
+        fields: ['key', 'summary', 'status'],
+        method: 'GET',
+        maxResults: 11,
+      }),
+    ]).then(([fromGet, fromSearch]) => ({
+      jql,
+      issues: [...(fromGet ? [fromGet] : []), ...(fromSearch ? fromSearch.issues : [])].map(this.jiraRespMapper),
+    }))
   }
 
   addComment(issueKey: string, comment: string): Promise<any> {
@@ -89,40 +80,35 @@ export default class {
 
   createIssue({
     assigneeJira,
-    project,
-    name,
     description,
+    issueType,
+    name,
+    project,
   }: {
     assigneeJira: string
-    project: string
-    name: string
     description: string
+    issueType: string
+    name: string
+    project: string
   }): Promise<any> {
     console.log({
       msg: 'createIssue',
       assigneeJira,
+      issueType,
       project,
       name,
       description,
     })
-    return (
-      this._jira.issue
-        .createIssue({
-          fields: {
-            assignee: assigneeJira ? {name: assigneeJira} : undefined,
-            project: {key: project.toUpperCase()},
-            issuetype: {name: 'Story'}, // TODO make this configurable?
-            summary: name,
-            description,
-          },
-        })
-        /*
-      .then(a => {
-        console.log(a)
-        return a
+    return this._jira.issue
+      .createIssue({
+        fields: {
+          assignee: assigneeJira ? {name: assigneeJira} : undefined,
+          project: {key: project.toUpperCase()},
+          issuetype: {name: issueType},
+          summary: name,
+          description,
+        },
       })
-      */
-        .then(({key}: {key: string}) => `https://${this._config.jira.host}/browse/${key}`)
-    )
+      .then(({key}: {key: string}) => `https://${this._config.jira.host}/browse/${key}`)
   }
 }

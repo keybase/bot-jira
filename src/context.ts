@@ -34,7 +34,7 @@ export type Context = {
 
 export const init = (config: Config.Config): Promise<Context> => {
   const context = {
-    aliases: new Aliases(config.aliases),
+    aliases: new Aliases({}),
     bot: new Bot(),
     config,
     comment: new CommentContext(),
