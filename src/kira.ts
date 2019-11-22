@@ -51,48 +51,50 @@ const onMessage = (context: Context, kbMessage: ChatTypes.MsgSummary) => {
   }
 }
 
+const commands = [
+  {
+    name: 'jira new',
+    description: 'make a Jira ticket',
+    usage: `[issue-type] in <PROJECT> [for|assignee <kb-username>] "multi word summary" <description>`,
+    title: 'Create a Jira ticket',
+    body:
+      'Examples:\n\n' +
+      `!jira new _in_ FRONTEND "UI tweaks for menu" margin should be 16px on desktop and 24px on mobile\n` +
+      `!jira new bug _in_ frontend _for_ @songgao "fix fs offline bug" app thinks it's offline when it's not\n`,
+  },
+  {
+    name: 'jira search',
+    description: 'search for Jira tickets',
+    usage: `[in <PROJECT>] [assignee <kb-username>] <query>`,
+    title: 'Search for Jira tickets',
+    body:
+      'Examples:\n\n' +
+      `!jira search rake in the lake\n` +
+      `!jira search _in_ DESIGN _assignee_ @cecileb bot popup\n` +
+      `!jira search _in_ FRONTEND _status_ "to do" offline mode\n`,
+  },
+  {
+    name: 'jira comment',
+    description: `Comment on a Jira tickets.`,
+    usage: `on <ticket-key> <content>`,
+    title: 'Comment on a Jira ticket',
+    body: 'Examples:\n\n' + `!jira comment on TRIAGE-1024 this is already fixed\n`,
+  },
+]
+
 const advertisements = [
   {
     type: 'public',
-    commands: [
-      {
-        name: 'jira new',
-        description: 'make a Jira ticket',
-        usage: `[issue-type] in <PROJECT> [for|assignee <kb-username>] "multi word summary" <description>`,
-        extendedDescription: {
-          title: 'Create a Jira ticket',
-          desktopBody:
-            'Examples:\n\n' +
-            `!jira new _in_ FRONTEND "UI tweaks for menu" margin should be 16px on desktop and 24px on mobile\n` +
-            `!jira new bug _in_ frontend _for_ @songgao "fix fs offline bug" app thinks it's offline when it's not\n`,
-          mobileBody: '',
-        },
+    commands: commands.map(({name, description, usage, title, body}) => ({
+      name,
+      description,
+      usage,
+      extendedDescription: {
+        title,
+        desktopBody: body,
+        mobileBody: body,
       },
-      {
-        name: 'jira search',
-        description: 'search for Jira tickets',
-        usage: `[in <PROJECT>] [assignee <kb-username>] <query>`,
-        extendedDescription: {
-          title: 'Search for Jira tickets',
-          desktopBody:
-            'Examples:\n\n' +
-            `!jira search rake in the lake\n` +
-            `!jira search _in_ DESIGN _assignee_ @cecileb bot popup\n` +
-            `!jira search _in_ FRONTEND _status_ "to do" offline mode\n`,
-          mobileBody: '',
-        },
-      },
-      {
-        name: 'jira comment',
-        description: `Comment on a Jira tickets.`,
-        usage: `on <ticket-key> <content>`,
-        extendedDescription: {
-          title: 'Comment on a Jira ticket',
-          desktopBody: 'Examples:\n\n' + `!jira comment on TRIAGE-1024 this is already fixed\n`,
-          mobileBody: '',
-        },
-      },
-    ],
+    })),
   },
 ]
 
