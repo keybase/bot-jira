@@ -1,18 +1,13 @@
 import ChatTypes from 'keybase-bot/lib/types/chat1'
 import {Issue as JiraIssue} from './jira'
 import {numToEmoji, statusToEmoji} from './emoji'
-import {SearchMessage, CommentMessage} from './message'
+import {SearchMessage} from './message'
 import {Context} from './context'
 
 const issueToLine = (issue: JiraIssue, index: number) =>
   `${numToEmoji(index)} *${issue.key}* ${statusToEmoji(issue.status)} ${issue.summary} - ${issue.url}`
 
-const buildSearchResultBody = (
-  parsedMessage: SearchMessage | CommentMessage,
-  jql: string,
-  issues: Array<JiraIssue>,
-  additional?: string
-) => {
+const buildSearchResultBody = (parsedMessage: SearchMessage, jql: string, issues: Array<JiraIssue>, additional?: string) => {
   const begin = '```\n' + jql + '\n```\n'
   if (!issues.length) {
     return begin + 'I got nothing from Jira.'
@@ -27,7 +22,7 @@ const buildSearchResultBody = (
 export const getOrSearch = (
   context: Context,
   channel: ChatTypes.ChatChannel,
-  parsedMessage: SearchMessage | CommentMessage,
+  parsedMessage: SearchMessage,
   additional?: string
 ): Promise<{issues: Array<JiraIssue>; count: number; id: number}> =>
   context.jira

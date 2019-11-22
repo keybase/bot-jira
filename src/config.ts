@@ -1,24 +1,20 @@
-import ChatTypes from 'keybase-bot/lib/types/chat1'
-
 export type Config = {
   keybase: {
     username: string
     paperkey: string
-    channels: Array<ChatTypes.ChatChannel>
   }
   jira: {
     host: string
     email: string
     apiToken: string
     projects: Array<string>
+    issueTypes: Array<string>
     status: Array<string>
     usernameMapper: {
       [key: string]: string
     }
-  }
-  aliases: {
-    // no space, has to be at beginning, replaced before parsing command
-    [key: string]: string
+
+    _issueTypeInsensitiveToIssueType: (issueType: string) => string
   }
 }
 
@@ -39,16 +35,6 @@ const checkConfig = (obj: any): null | Config => {
   if (typeof obj.keybase.paperkey !== 'string') {
     console.error('unexpect obj.keybase.paperkey type', typeof obj.keybase.paperkey)
     return null
-  }
-  if (!Array.isArray(obj.keybase.channels)) {
-    console.error('unexpect obj.keybase.channels type: not an array', obj.keybase.channels)
-    return null
-  }
-  for (let channel of obj.keybase.channels) {
-    if (typeof channel !== 'object') {
-      console.error('unexpect channel type', typeof channel)
-      return null
-    }
   }
 
   if (typeof obj.jira !== 'object') {
@@ -71,6 +57,10 @@ const checkConfig = (obj: any): null | Config => {
     console.error('unexpect obj.jira.projects type: not an array', obj.jira.projects)
     return null
   }
+  if (!Array.isArray(obj.jira.issueTypes)) {
+    console.error('unexpect obj.jira.issueTypes type: not an array', obj.jira.issueTypes)
+    return null
+  }
   if (!Array.isArray(obj.jira.status)) {
     console.error('unexpect obj.jira.status type: not an array', obj.jira.status)
     return null
@@ -79,6 +69,11 @@ const checkConfig = (obj: any): null | Config => {
   // case-insensitive
   obj.jira.projects = obj.jira.projects.map((project: string) => project.toLowerCase())
   obj.jira.status = obj.jira.status.map((status: string) => status.toLowerCase())
+
+  obj.jira._issueTypeInsensitiveToIssueType = (() => {
+    const mapper = new Map(obj.jira.issueTypes.map((original: string) => [original.toLowerCase(), original]))
+    return (issueType: string) => mapper.get(issueType.toLowerCase()) || issueType
+  })()
 
   // TODO validate usernameMapper maybe
 
